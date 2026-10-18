@@ -11,20 +11,22 @@ extern uint32_t _ebss;
 
 extern int main(void);
 
-void Reset_Handler(void);
+void ResetISR(void);
+void NmiSR(void);
 
 __attribute__((section(".isr_vector")))
 const void *vtable[] = {
   &_estack,
-  Reset_Handler,
+  ResetISR,
+  NmiSR,
 };
 
 
-void Reset_Handler(void)
+void ResetISR(void)
 {
   uint32_t *src, *dst;
 
-  for (src = &_sidata, dst = &_sdata; src < &_edata; ++src, ++dst) {
+  for (src = &_sidata, dst = &_sdata; dst < &_edata; ++src, ++dst) {
     *dst = *src;
   }
 
@@ -40,3 +42,8 @@ void Reset_Handler(void)
   }
 }
 
+void NmiSR(void)
+{
+  while(1) {
+  }
+}

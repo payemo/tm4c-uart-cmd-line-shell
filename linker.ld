@@ -1,4 +1,3 @@
-ENTRY(Reset_Handler)
 
 MEMORY
 {
@@ -7,6 +6,34 @@ MEMORY
 }
 
 _estack = ORIGIN(SRAM) + LENGTH(SRAM);
+
+/* SECTIONS */
+/* { */
+/* 	.text : */
+/* 	{ */
+/* 		_text = . */
+/* 		KEEP(*(.isr_vector)) */
+/* 		*(.text*) */
+/* 		*(.rodata*) */
+/* 		_etext = . */
+/* 	} > FLASH */
+
+/* 	.data : */
+/* 	{ */
+/* 		_data = . */
+/* 		*(.data*) */
+/* 		.edata = . */
+/* 	} > SRAM AT > FLASH */
+
+/* 	.bss : */
+/* 	{ */
+/* 		_bss = . */
+/* 		*(.*bss) */
+/* 		*(COMMON) */
+/* 		_ebss = . */
+/* 	} > SRAM */
+/* } */
+		
 
 SECTIONS
 {
