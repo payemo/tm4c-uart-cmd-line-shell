@@ -1,4 +1,3 @@
-
 MEMORY
 {
 	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 256K
@@ -7,60 +6,28 @@ MEMORY
 
 _estack = ORIGIN(SRAM) + LENGTH(SRAM);
 
-/* SECTIONS */
-/* { */
-/* 	.text : */
-/* 	{ */
-/* 		_text = . */
-/* 		KEEP(*(.isr_vector)) */
-/* 		*(.text*) */
-/* 		*(.rodata*) */
-/* 		_etext = . */
-/* 	} > FLASH */
-
-/* 	.data : */
-/* 	{ */
-/* 		_data = . */
-/* 		*(.data*) */
-/* 		.edata = . */
-/* 	} > SRAM AT > FLASH */
-
-/* 	.bss : */
-/* 	{ */
-/* 		_bss = . */
-/* 		*(.*bss) */
-/* 		*(COMMON) */
-/* 		_ebss = . */
-/* 	} > SRAM */
-/* } */
-		
-
 SECTIONS
 {
-	.isr_vector :
-	{
-		KEEP(*(.isr_vector))
-	} > FLASH
-
 	.text :
 	{
+		_text = .;
+		KEEP(*(.isr_vector))
 		*(.text*)
 		*(.rodata*)
+		_etext = .;
 	} > FLASH
 
 	.data :
 	{
-		_sdata = .;
+		_data = .;
 		*(.data*)
 		_edata = .;
 	} > SRAM AT > FLASH
 
-	_sidata = LOADADDR(.data);
-
 	.bss :
 	{
-		_sbss = .;
-		*(.bss*)
+		_bss = .;
+		*(.*bss)
 		*(COMMON)
 		_ebss = .;
 	} > SRAM

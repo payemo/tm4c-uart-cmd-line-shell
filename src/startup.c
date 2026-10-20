@@ -2,11 +2,10 @@
 
 extern uint32_t _estack;
 
-extern uint32_t _sidata;
-extern uint32_t _sdata;
+extern uint32_t _etext;
+extern uint32_t _data;
 extern uint32_t _edata;
-
-extern uint32_t _sbss;
+extern uint32_t _bss;
 extern uint32_t _ebss;
 
 extern int main(void);
@@ -21,25 +20,19 @@ const void *vtable[] = {
   NmiSR,
 };
 
-
 void ResetISR(void)
 {
   uint32_t *src, *dst;
 
-  for (src = &_sidata, dst = &_sdata; dst < &_edata; ++src, ++dst) {
+  for (src = &_etext, dst = &_data; dst < &_edata; ++src, ++dst) {
     *dst = *src;
   }
 
-  dst = &_sbss;
-
-  for (dst = &_sbss; dst < &_ebss; ++dst) {
+  for (dst = &_bss; dst < &_ebss; ++dst) {
     *dst = 0;
   }
 
   main();
-
-  while (1) {
-  }
 }
 
 void NmiSR(void)
