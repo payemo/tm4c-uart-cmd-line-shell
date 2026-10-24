@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "drivers/uart.h"
+
 #define REG32(addr) (*(volatile uint32_t *)(addr))
 
 /* System Control registers */
@@ -49,13 +51,16 @@ static void delay(volatile uint32_t count) {
 
 int main()
 {
-  led_init();
+  //led_init();
+  uart_init();
+
+  uart_write("Hello from TM4C123!\r\n");
 
   while (1) {
-    GPIO_PORTF_DATA |= LED_RED;
-    delay(1000000u);
+    /* GPIO_PORTF_DATA |= LED_RED; */
+    /* delay(1000000u); */
 
-    GPIO_PORTF_DATA &= ~(LED_RED);
-    delay(1000000u);
+    /* GPIO_PORTF_DATA &= ~(LED_RED); */
+    /* delay(1000000u); */
   }
 }
