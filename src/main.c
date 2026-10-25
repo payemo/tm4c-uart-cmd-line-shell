@@ -1,25 +1,16 @@
-#include <stdint.h>
-
 #include "drivers/uart.h"
-
-/* static void delay(volatile uint32_t count) { */
-/*   while (count > 0u) { */
-/*     --count; */
-/*     __asm volatile ("nop"); */
-/*   } */
-/* } */
+#include "shell/line_reader.h"
 
 int main()
 {
-  //led_init();
   uart_init();
 
-  uart_write("UART echo ready\r\n");
+  line_reader_init();
 
   while (1) {
     if (uart_available()) {
       char c = uart_getc();
-      uart_putc(c);
+      line_reader_process_char(c);
     }
   }
 }
