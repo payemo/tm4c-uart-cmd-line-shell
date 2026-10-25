@@ -31,8 +31,8 @@ void uart_init(void)
   // 5. Configure 8N1, FIFOs disabled.
   UART0_LCRH_R = (3U << 5);
 
-  // 6. Enable UART0 and transmission
-  UART0_CTL_R = (1U << 0) | (1U << 8);
+  // 6. Enable UART0 and Tx/Rx
+  UART0_CTL_R = (1U << 0) | (1U << 8) | (1U << 9);
 }
 
 void uart_putc(char c)
@@ -48,4 +48,14 @@ void uart_write(const char *str)
   while (*str != '\0') {
     uart_putc(*str++);
   }
+}
+
+bool uart_available(void)
+{
+  return ((UART0_FR_R & (1U << 4)) == 0);
+}
+
+char uart_getc(void)
+{
+  return UART0_DR_R & 0xFF;
 }

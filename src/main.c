@@ -14,7 +14,12 @@ int main()
   //led_init();
   uart_init();
 
-  uart_write("Hello from TM4C123!\r\n");
+  uart_write("UART echo ready\r\n");
 
-  while (1) {}
+  while (1) {
+    if (uart_available()) {
+      char c = uart_getc();
+      uart_putc(c);
+    }
+  }
 }
