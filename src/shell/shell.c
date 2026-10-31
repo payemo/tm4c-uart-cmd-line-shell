@@ -1,10 +1,11 @@
-#include "shell.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "shell.h"
 #include "../drivers/uart.h"
+#include "shell_parser.h"
+#include "shell_commands.h"
 
 static char line[SHELL_LINE_SIZE];
 static size_t line_pos;
@@ -76,9 +77,13 @@ void shell_process_line(void)
   if (hidden_overflow_symbols > 0) {
     uart_write("Error: command too long\r\n");
   } else if (line_pos > 0U) {
-    uart_write("received: ");
-    uart_write(line);
-    uart_write("\r\n");
+    char *argv[SHELL_MAX_ARGS];
+    int argc = shell_tokenize(line, argv, SHELL_MAX_ARGS);
+
+    if (argc > 0) {
+      (void)shell_process_cmd(argc, argv);
+      uart_write("\r\n");
+    }
   }
 
   shell_reset_line();
