@@ -1,5 +1,6 @@
 #include "../drivers/uart.h"
 #include "../drivers/led.h"
+#include "../drivers/button.h"
 #include "shell_commands.h"
 
 #define FIRMWARE_VERSION "0.1"
@@ -8,11 +9,13 @@
 static int cmd_help(int argc, char **argv);
 static int cmd_info(int argc, char **argv);
 static int cmd_led(int argc, char **argv);
+static int cmd_button(int argc, char **argv);
 
 static const shell_command_t commands[] = {
-  { "help", "Show available commands", cmd_help },
-  { "info", "Show board information",  cmd_info },
-  { "led",  "Control RGB LED",         cmd_led }
+  { "help",   "Show available commands",         cmd_help },
+  { "info",   "Show board information",          cmd_info },
+  { "led",    "Control RGB LED",                 cmd_led },
+  { "button", "Control input Switch 1/2 button", cmd_button }
 };
 
 static int str_eq(const char *lhs, const char *rhs)
@@ -114,6 +117,24 @@ static int cmd_led(int argc, char **argv)
 
   led_set(color, enabled);
   uart_write("OK\r\n");
+
+  return SHELL_OK;
+}
+
+int cmd_button(int argc, char **argv)
+{
+  (void)argv;
+  
+  if (argc != 1) {
+    uart_write("Usage: press SW1/SW2 and run button command\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  bool sw1_pressed = button_pressed(BUTTON_SW1);
+  bool sw2_pressed = button_pressed(BUTTON_SW2);
+
+  uart_write(sw1_pressed ? "SW1: pressed\r\n" : "SW1: released\r\n");
+  uart_write(sw2_pressed ? "SW2: pressed\r\n" : "SW2: released\r\n");
 
   return SHELL_OK;
 }
