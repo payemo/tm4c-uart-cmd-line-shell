@@ -1,4 +1,5 @@
 #include "../drivers/uart.h"
+#include "../drivers/led.h"
 #include "shell_commands.h"
 
 #define FIRMWARE_VERSION "0.1"
@@ -6,10 +7,12 @@
 
 static int cmd_help(int argc, char **argv);
 static int cmd_info(int argc, char **argv);
+static int cmd_led(int argc, char **argv);
 
 static const shell_command_t commands[] = {
   { "help", "Show available commands", cmd_help },
-  { "info", "Show board information", cmd_info }
+  { "info", "Show board information",  cmd_info },
+  { "led",  "Control RGB LED",         cmd_led }
 };
 
 static int str_eq(const char *lhs, const char *rhs)
@@ -74,6 +77,43 @@ static int cmd_info(int argc, char **argv)
   uart_write("UART: UART0\r\n");
   uart_write("Baud: " UART_BAUD_RATE "\r\n");
   uart_write("Firmware: " FIRMWARE_VERSION "\r\n");
+
+  return SHELL_OK;
+}
+
+static int cmd_led(int argc, char **argv)
+{
+  if (argc != 3) {
+    uart_write("Usage: led <red|green|blue> <on|off>\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  led_color_t color;
+
+  if (str_eq(argv[1], "red") == 0) {
+    color = LED_RED;
+  } else if (str_eq(argv[1], "green") == 0) {
+    color = LED_GREEN;
+  } else if (str_eq(argv[1], "blue") == 0) {
+    color = LED_BLUE;
+  } else {
+    uart_write("Error: invalid color\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  bool enabled;
+
+  if (str_eq(argv[2], "on") == 0) {
+    enabled = true;
+  } else if (str_eq(argv[2], "off") == 0) {
+    enabled = false;
+  } else {
+    uart_write("Error: invalid state\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  led_set(color, enabled);
+  uart_write("OK\r\n");
 
   return SHELL_OK;
 }
