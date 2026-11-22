@@ -2,6 +2,7 @@
 #include "../drivers/led.h"
 #include "../drivers/button.h"
 #include "../drivers/systick.h"
+#include "../board/board.h"
 #include "shell_commands.h"
 
 #define FIRMWARE_VERSION "0.1"
@@ -12,6 +13,7 @@ static int cmd_info(int argc, char **argv);
 static int cmd_led(int argc, char **argv);
 static int cmd_button(int argc, char **argv);
 static int cmd_uptime(int argc, char **argv);
+static int cmd_reboot(int argc, char **argv);
 
 static const shell_command_t commands[] = {
   { "help",   "Show available commands",         cmd_help },
@@ -19,6 +21,7 @@ static const shell_command_t commands[] = {
   { "led",    "Control RGB LED",                 cmd_led },
   { "button", "Control input Switch 1/2 button", cmd_button },
   { "uptime", "Measures elapsed time since boot",cmd_uptime },
+  { "reboot", "Triggers MCU reset",              cmd_reboot }
 };
 
 static int str_eq(const char *lhs, const char *rhs)
@@ -179,6 +182,22 @@ int cmd_uptime(int argc, char **argv)
   uart_write(" s\r\n");
   
   return SHELL_OK;
+}
+
+int cmd_reboot(int argc, char **argv)
+{
+  (void)argv;
+
+  if (argc != 1) {
+    uart_write("Usage: reboot\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  uart_write("Rebooting ...\r\n");
+
+  uart_wait_tx_complete();
+  
+  board_reset();
 }
 
 int shell_process_cmd(int argc, char **argv)

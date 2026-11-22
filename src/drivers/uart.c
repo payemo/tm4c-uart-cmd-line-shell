@@ -59,3 +59,10 @@ char uart_getc(void)
 {
   return UART0_DR_R & 0xFF;
 }
+
+void uart_wait_tx_complete(void)
+{
+  while ((UART0_FR_R & UART_FR_BUSY) != 0U) {
+    /* Wait until UART transmission finished. */
+  }
+}
