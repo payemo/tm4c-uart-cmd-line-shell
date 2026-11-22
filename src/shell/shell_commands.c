@@ -1,6 +1,7 @@
 #include "../drivers/uart.h"
 #include "../drivers/led.h"
 #include "../drivers/button.h"
+#include "../drivers/systick.h"
 #include "shell_commands.h"
 
 #define FIRMWARE_VERSION "0.1"
@@ -10,12 +11,14 @@ static int cmd_help(int argc, char **argv);
 static int cmd_info(int argc, char **argv);
 static int cmd_led(int argc, char **argv);
 static int cmd_button(int argc, char **argv);
+static int cmd_uptime(int argc, char **argv);
 
 static const shell_command_t commands[] = {
   { "help",   "Show available commands",         cmd_help },
   { "info",   "Show board information",          cmd_info },
   { "led",    "Control RGB LED",                 cmd_led },
-  { "button", "Control input Switch 1/2 button", cmd_button }
+  { "button", "Control input Switch 1/2 button", cmd_button },
+  { "uptime", "Measures elapsed time since boot",cmd_uptime },
 };
 
 static int str_eq(const char *lhs, const char *rhs)
@@ -136,6 +139,45 @@ int cmd_button(int argc, char **argv)
   uart_write(sw1_pressed ? "SW1: pressed\r\n" : "SW1: released\r\n");
   uart_write(sw2_pressed ? "SW2: pressed\r\n" : "SW2: released\r\n");
 
+  return SHELL_OK;
+}
+
+static void uart_write_uint(uint32_t value, unsigned min_digits)
+{
+  char buf[11];
+  unsigned i = sizeof(buf) - 1;
+
+  buf[i] = '\0';
+  do {
+    buf[--i] = (char)('0' + (value % 10U));
+    value /= 10U;
+  } while (value != 0U);
+
+  while ((sizeof(buf) - 1 - i) < min_digits) {
+    buf[--i] = '0';
+  }
+
+  uart_write(&buf[i]);
+}
+
+int cmd_uptime(int argc, char **argv)
+{
+  (void)argv;
+
+  if (argc != 1) {
+    uart_write("Usage: uptime\r\n");
+    return SHELL_ERROR_ARGS;
+  }
+
+  uint32_t ms = uptime_ms();
+
+  // print seconds
+  uart_write_uint(ms / 1000UL, 1);
+  uart_write(".");
+  // print millisecods
+  uart_write_uint(ms % 1000UL, 3);  // zero-pad: 5 ms -> ".005"
+  uart_write(" s\r\n");
+  
   return SHELL_OK;
 }
 
